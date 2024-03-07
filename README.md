@@ -21,8 +21,7 @@ http://localhost:3000/api
 {
     "email": "",
     "username": "",
-    "password": "",
-    "password_confirmation": ""
+    "password": ""
 }
 ```
 - Response:
@@ -30,10 +29,6 @@ http://localhost:3000/api
 {
   "status": true,
   "message": "User created successfully",
-  "data": {
-    "name": "John Doe",
-    "email": "jhondoe@email.com"
-  }
 }
 ```
 
@@ -59,9 +54,5 @@ http://localhost:3000/api
 {
   "status": true,
   "message": "User logged in successfully",
-  "data": {
-    "name": "John Doe",
-    "email": "jhondoe@email.com"
-  }
 }
 ```
