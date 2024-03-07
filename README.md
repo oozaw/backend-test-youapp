@@ -29,6 +29,11 @@ http://localhost:3000/api
 {
   "status": true,
   "message": "User created successfully",
+  "data": {
+    "_id": "",
+    "username": "",
+    "email": "",
+  }
 }
 ```
 
@@ -54,5 +59,11 @@ http://localhost:3000/api
 {
   "status": true,
   "message": "User logged in successfully",
+  "data": {
+    "_id": "",
+    "username": "",
+    "email": "",
+    "access_token": ""
+  }
 }
 ```

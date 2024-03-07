@@ -30,10 +30,10 @@ export class User {
   zodiac: string;
 
   @Prop()
-  height: string;
+  height: number;
 
   @Prop()
-  weight: string;
+  weight: number;
 
   @Prop({ type: [String] })
   interests: string[];
