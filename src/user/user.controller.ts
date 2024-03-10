@@ -1,14 +1,21 @@
 import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateProfileDto, UpdateProfileDto } from './dto';
-import { GetUser } from 'src/auth/decorator';
+import { ApiCustomResponse, GetUser } from 'src/auth/decorator';
 import { JwtGuard } from 'src/auth/guard';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
+@ApiBearerAuth()
 @UseGuards(JwtGuard)
 @Controller('api')
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @ApiCustomResponse({
+    status: 201,
+    description: 'Profile created successfully',
+  })
   @Post('createProfile')
   async createProfile(
     @GetUser('userId') userId: string,
@@ -34,6 +41,10 @@ export class UserController {
     };
   }
 
+  @ApiCustomResponse({
+    status: 200,
+    description: 'Profile fetched successfully',
+  })
   @Get('getProfile')
   async getProfile(@GetUser('userId') userId: string) {
     const user = await this.userService.findOne(userId);
@@ -56,6 +67,10 @@ export class UserController {
     };
   }
 
+  @ApiCustomResponse({
+    status: 200,
+    description: 'Profile updated successfully',
+  })
   @Patch('updateProfile')
   async updateProfile(
     @GetUser('userId') userId: string,
