@@ -37,6 +37,12 @@ export class AuthService {
       const user = new this.userModel(dto);
       const result = await user.save();
 
+      const token = await this.signToken(
+        result._id,
+        result.username,
+        result.email,
+      );
+
       return {
         status: true,
         message: 'User created successfully',
@@ -44,6 +50,7 @@ export class AuthService {
           _id: result._id,
           username: result.username,
           email: result.email,
+          access_token: token.access_token,
         },
       };
     } catch (error) {
