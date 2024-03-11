@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from '@app/common/database/schema';
+import { User, UserSchema } from '@app/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { DatabaseModule } from '@app/common/database/database.module';
+import { DatabaseModule } from '@app/common';
 import { ConfigModule } from '@nestjs/config';
-import { JwtStrategy } from '@app/common/strategies';
+import { JwtStrategy } from '@app/common';
 
 @Module({
   imports: [

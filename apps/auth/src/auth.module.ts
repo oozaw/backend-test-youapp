@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from '@app/common/database/schema';
+import { RmqModule, User, UserSchema } from '@app/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { JwtStrategy } from '@app/common/strategies';
-import { DatabaseModule } from '@app/common/database/database.module';
+import { JwtStrategy } from '@app/common';
+import { DatabaseModule } from '@app/common';
 
 @Module({
   imports: [
@@ -14,6 +14,7 @@ import { DatabaseModule } from '@app/common/database/database.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    RmqModule,
     DatabaseModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     JwtModule.register({
