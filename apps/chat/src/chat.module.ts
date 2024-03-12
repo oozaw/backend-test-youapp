@@ -3,21 +3,24 @@ import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import {
   DatabaseModule,
+  Message,
   RmqModule,
-  RmqService,
   Room,
   RoomSchema,
 } from '@app/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ApiModule } from 'apps/api/src/api.module';
+import { ConfigModule } from '@nestjs/config';
+import { MessageSchema } from '@app/common/database/schema/message.schema';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     RmqModule,
     DatabaseModule,
-    MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
+    MongooseModule.forFeature([
+      { name: Room.name, schema: RoomSchema },
+      { name: Message.name, schema: MessageSchema },
+    ]),
   ],
   controllers: [ChatController],
   providers: [ChatService],

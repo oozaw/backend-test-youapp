@@ -1,4 +1,10 @@
-import { Message, Room, RoomDocument } from '@app/common';
+import {
+  CreateMessageDto,
+  Message,
+  MessageDocument,
+  Room,
+  RoomDocument,
+} from '@app/common';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateRoomDto } from '@app/common';
@@ -7,12 +13,13 @@ import { Model } from 'mongoose';
 @Injectable()
 export class ChatService {
   constructor(
+    @InjectModel(Message.name)
+    private readonly messageModel: Model<MessageDocument>,
     @InjectModel(Room.name) private readonly roomModel: Model<RoomDocument>,
   ) {}
 
-  async createRoom(dto: CreateRoomDto, userId: string) {
+  async createRoom(dto: CreateRoomDto) {
     try {
-      dto.createdBy = userId;
       return await this.roomModel.create(dto);
     } catch (error) {
       throw error;
@@ -21,19 +28,15 @@ export class ChatService {
 
   async findMessagesByRoomId(roomId: string): Promise<Message[]> {
     try {
-      return await this.roomModel.find({ members: { $in: [roomId] } });
+      return await this.messageModel.find({ roomId: roomId });
     } catch (error) {
       throw error;
     }
   }
 
-  async sendMessage(roomId: string, message: object) {
+  async sendMessage(dto: CreateMessageDto) {
     try {
-      return await this.roomModel.findByIdAndUpdate(
-        roomId,
-        { $push: { messages: message } },
-        { new: true },
-      );
+      return await this.messageModel.create(dto);
     } catch (error) {
       throw error;
     }

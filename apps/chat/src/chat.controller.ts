@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import {
   Ctx,
@@ -7,7 +7,7 @@ import {
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
-import { CreateRoomDto, Message, RmqService } from '@app/common';
+import { CreateMessageDto, CreateRoomDto, RmqService } from '@app/common';
 
 @Controller()
 export class ChatController {
@@ -18,21 +18,20 @@ export class ChatController {
 
   @MessagePattern('create_room')
   async createRoom(
-    @Payload() data: { dto: CreateRoomDto; userId: string },
+    @Payload() data: { dto: CreateRoomDto },
     @Ctx() context: RmqContext,
   ) {
     this.rmqService.ack(context);
-    console.log(data);
-    return await this.chatService.createRoom(data.dto, data.userId);
+    return await this.chatService.createRoom(data.dto);
   }
 
   @EventPattern('send_message')
   sendMessage(
-    @Payload() data: { roomId: string; message: Message },
+    @Payload() data: { dto: CreateMessageDto },
     @Ctx() context: RmqContext,
   ) {
     this.rmqService.ack(context);
-    return this.chatService.sendMessage(data.roomId, data.message);
+    return this.chatService.sendMessage(data.dto);
   }
 
   @MessagePattern('find_messages_by_room_id')

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateRoomDto } from '@app/common';
+import { CreateMessageDto, CreateRoomDto } from '@app/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { Message } from '@app/common';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class ChatService {
@@ -9,19 +9,17 @@ export class ChatService {
     @Inject('CHAT_SERVICE') private readonly chatClient: ClientProxy,
   ) {}
 
-  createRoom(dto: CreateRoomDto, userId: string) {
-    const result = this.chatClient.send('create_room', { dto, userId });
-
-    result.subscribe();
-
-    return result;
+  createRoom(dto: CreateRoomDto, userId: string): Observable<any> {
+    dto.createdBy = userId;
+    return this.chatClient.send('create_room', { dto });
   }
 
-  sendMessage(roomId: string, message: Message) {
-    return this.chatClient.emit('send_message', { roomId, message });
+  sendMessage(dto: CreateMessageDto, userId: string) {
+    dto.sender = userId;
+    return this.chatClient.emit('send_message', { dto });
   }
 
-  findMessagesByRoomId(roomId: string) {
+  findMessagesByRoomId(roomId: string): Observable<any> {
     return this.chatClient.send('find_messages_by_room_id', roomId);
   }
 
