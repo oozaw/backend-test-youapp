@@ -3,6 +3,7 @@ import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
     AuthModule,
     UserModule,
+    ChatModule,
   ],
 })
-export class AppModule {}
+export class ApiModule {}

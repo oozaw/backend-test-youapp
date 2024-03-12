@@ -1,12 +1,13 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { ApiModule } from './api.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const configService = new ConfigService();
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(ApiModule);
+
+  const configService = app.get(ConfigService);
 
   const config = new DocumentBuilder()
     .setTitle('YouApp Backend API Test')
@@ -17,7 +18,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('apiDocs', app, document);
+  SwaggerModule.setup('api-docs', app, document);
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   await app.listen(configService.get('PORT') || 3000);
