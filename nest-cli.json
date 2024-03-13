@@ -1,22 +1,22 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/backend-test-youapp/src",
+  "sourceRoot": "apps/api/src",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/backend-test-youapp/tsconfig.app.json"
+    "tsConfigPath": "apps/api/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/backend-test-youapp",
+  "root": "apps/api",
   "projects": {
-    "backend-test-youapp": {
+    "api": {
       "type": "application",
-      "root": "apps/backend-test-youapp",
+      "root": "apps/api",
       "entryFile": "main",
-      "sourceRoot": "apps/backend-test-youapp/src",
+      "sourceRoot": "apps/api/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/backend-test-youapp/tsconfig.app.json"
+        "tsConfigPath": "apps/api/tsconfig.app.json"
       }
     },
     "chat": {
@@ -44,15 +44,6 @@
       "sourceRoot": "apps/user/src",
       "compilerOptions": {
         "tsConfigPath": "apps/user/tsconfig.app.json"
-      }
-    },
-    "api": {
-      "type": "application",
-      "root": "apps/api",
-      "entryFile": "main",
-      "sourceRoot": "apps/api/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/api/tsconfig.app.json"
       }
     },
     "common": {

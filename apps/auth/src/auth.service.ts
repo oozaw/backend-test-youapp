@@ -1,7 +1,11 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { LoginDto, RegisterDto } from './dto';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '@app/common';
+import { LoginDto, RegisterDto, User, UserDocument } from '@app/common';
 import { Model } from 'mongoose';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
@@ -14,26 +18,26 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    // check if user exists
-    const checkEmail = await this.userModel.findOne({ email: dto.email });
-
-    const checkUsername = await this.userModel.findOne({
-      username: dto.username,
-    });
-
-    if (checkEmail || checkUsername) {
-      throw new ForbiddenException({
-        status: false,
-        message: 'Credentials are already taken',
-      });
-    }
-
-    // hash password
-    const hashedPassword = await argon.hash(dto.password);
-    dto.password = hashedPassword;
-
-    // save user to db
     try {
+      // check if user exists
+      const checkEmail = await this.userModel.findOne({ email: dto.email });
+
+      const checkUsername = await this.userModel.findOne({
+        username: dto.username,
+      });
+
+      if (checkEmail || checkUsername) {
+        throw new ForbiddenException({
+          status: false,
+          message: 'Credentials are already taken',
+        });
+      }
+
+      // hash password
+      const hashedPassword = await argon.hash(dto.password);
+      dto.password = hashedPassword;
+
+      // save user to db
       const user = new this.userModel(dto);
       const result = await user.save();
 
@@ -59,64 +63,68 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    // validate user input
-    if (!dto.username && !dto.email) {
-      throw new ForbiddenException({
-        status: false,
-        message: 'Username or email is required',
-      });
+    try {
+      // validate user input
+      if (!dto.username && !dto.email) {
+        throw new ForbiddenException({
+          status: false,
+          message: 'Username or email is required',
+        });
+      }
+
+      // check if user exists
+      if (!dto.username && dto.email) {
+        var checkUser = await this.userModel.findOne({
+          email: dto.email,
+        });
+      } else {
+        var checkUser = await this.userModel.findOne({
+          username: dto.username,
+        });
+      }
+
+      // if user does not exist, throw error
+      if (!checkUser) {
+        throw new ForbiddenException({
+          status: false,
+          message: 'User not found',
+        });
+      }
+
+      // if user exists, compare password
+      const isPasswordMatch = await argon.verify(
+        checkUser.password,
+        dto.password,
+      );
+
+      // if password is incorrect, throw error
+      if (!isPasswordMatch) {
+        throw new ForbiddenException({
+          status: false,
+          message: 'Invalid credentials',
+        });
+      }
+
+      // if password is correct, generate token
+      const token = await this.signToken(
+        checkUser._id,
+        checkUser.username,
+        checkUser.email,
+      );
+
+      return {
+        status: true,
+        message: 'User logged in successfully',
+        data: {
+          _id: checkUser._id,
+          username: checkUser.username,
+          email: checkUser.email,
+          access_token: token.access_token,
+        },
+      };
+    } catch (error) {
+      throw error;
     }
-
-    // check if user exists
-    if (!dto.username && dto.email) {
-      var checkUser = await this.userModel.findOne({
-        email: dto.email,
-      });
-    } else {
-      var checkUser = await this.userModel.findOne({
-        username: dto.username,
-      });
-    }
-
-    // if user does not exist, throw error
-    if (!checkUser) {
-      throw new ForbiddenException({
-        status: false,
-        message: 'User not found',
-      });
-    }
-
-    // if user exists, compare password
-    const isPasswordMatch = await argon.verify(
-      checkUser.password,
-      dto.password,
-    );
-
-    // if password is incorrect, throw error
-    if (!isPasswordMatch) {
-      throw new ForbiddenException({
-        status: false,
-        message: 'Invalid credentials',
-      });
-    }
-
-    // if password is correct, generate token
-    const token = await this.signToken(
-      checkUser._id,
-      checkUser.username,
-      checkUser.email,
-    );
-
-    return {
-      status: true,
-      message: 'User logged in successfully',
-      data: {
-        _id: checkUser._id,
-        username: checkUser.username,
-        email: checkUser.email,
-        access_token: token.access_token,
-      },
-    };
   }
 
   async signToken(
@@ -131,5 +139,21 @@ export class AuthService {
     return {
       access_token: token,
     };
+  }
+
+  async validateJwt(jwt: string) {
+    try {
+      return await this.jwt.verifyAsync(jwt);
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  async getUserFromJwt(jwt: string) {
+    try {
+      return await this.jwt.decode(jwt);
+    } catch (error) {
+      throw new BadRequestException();
+    }
   }
 }

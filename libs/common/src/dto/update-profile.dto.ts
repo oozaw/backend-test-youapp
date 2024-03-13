@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsNumber, IsArray } from 'class-validator';
 
-export class CreateProfileDto {
+export class UpdateProfileDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
@@ -17,13 +17,9 @@ export class CreateProfileDto {
   @IsOptional()
   birthday?: string;
 
-  @IsString()
-  @IsOptional()
-  horoscope?: string;
+  horoscope: string;
 
-  @IsString()
-  @IsOptional()
-  zodiac?: string;
+  zodiac: string;
 
   @ApiProperty({ required: false })
   @IsNumber()

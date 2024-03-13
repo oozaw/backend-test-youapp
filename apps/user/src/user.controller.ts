@@ -1,27 +1,27 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateProfileDto, UpdateProfileDto } from './dto';
-import { ApiCustomResponse, GetUser } from '@app/common';
-import { JwtGuard } from '@app/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateProfileDto, RmqService, UpdateProfileDto } from '@app/common';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 
-@ApiTags('user')
-@ApiBearerAuth()
-@UseGuards(JwtGuard)
-@Controller('api')
+@Controller()
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly rmqService: RmqService,
+  ) {}
 
-  @ApiCustomResponse({
-    status: 201,
-    description: 'Profile created successfully',
-  })
-  @Post('createProfile')
+  @MessagePattern('create_profile')
   async createProfile(
-    @GetUser('userId') userId: string,
-    @Body() dto: CreateProfileDto,
+    @Payload() data: { userId: string; dto: CreateProfileDto },
+    @Ctx() context: RmqContext,
   ) {
-    const user = await this.userService.createProfile(userId, dto);
+    this.rmqService.ack(context);
+    const user = await this.userService.createProfile(data.userId, data.dto);
 
     return {
       status: true,
@@ -41,13 +41,13 @@ export class UserController {
     };
   }
 
-  @ApiCustomResponse({
-    status: 200,
-    description: 'Profile fetched successfully',
-  })
-  @Get('getProfile')
-  async getProfile(@GetUser('userId') userId: string) {
-    const user = await this.userService.findOne(userId);
+  @MessagePattern('get_profile')
+  async getProfile(
+    @Payload() data: { userId: string },
+    @Ctx() context: RmqContext,
+  ) {
+    this.rmqService.ack(context);
+    const user = await this.userService.findOne(data.userId);
 
     return {
       status: true,
@@ -67,16 +67,13 @@ export class UserController {
     };
   }
 
-  @ApiCustomResponse({
-    status: 200,
-    description: 'Profile updated successfully',
-  })
-  @Patch('updateProfile')
+  @MessagePattern('update_profile')
   async updateProfile(
-    @GetUser('userId') userId: string,
-    @Body() dto: UpdateProfileDto,
+    @Payload() data: { userId: string; dto: UpdateProfileDto },
+    @Ctx() context: RmqContext,
   ) {
-    const user = await this.userService.updateProfile(userId, dto);
+    this.rmqService.ack(context);
+    const user = await this.userService.updateProfile(data.userId, data.dto);
 
     return {
       status: true,

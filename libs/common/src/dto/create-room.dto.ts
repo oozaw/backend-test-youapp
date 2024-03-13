@@ -1,32 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsBoolean,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateRoomDto {
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  @IsOptional()
+  name?: string;
 
   @ApiProperty({ type: String, required: false })
   @IsString()
   @IsOptional()
   description?: string;
-
-  @ApiProperty({ type: Boolean, default: false })
-  @IsBoolean()
-  @IsOptional()
-  isPrivate?: boolean;
-
-  @ApiProperty({ type: String, required: false })
-  @IsString()
-  @IsOptional()
-  password?: string;
 
   @ApiProperty({ type: [String], required: true })
   @IsArray()
@@ -34,11 +18,5 @@ export class CreateRoomDto {
   @IsNotEmpty({ each: true })
   members: string[];
 
-  @IsArray()
-  @IsOptional()
-  messages?: [];
-
-  @IsString()
-  @IsOptional()
-  createdBy?: string;
+  createdBy: string;
 }

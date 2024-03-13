@@ -1,26 +1,50 @@
 import { AuthService } from './auth.service';
-import { Body, Controller, Post } from '@nestjs/common';
-import { LoginDto, RegisterDto } from './dto';
-import { ApiTags } from '@nestjs/swagger';
-import { ApiCustomResponse } from '@app/common';
+import { Controller } from '@nestjs/common';
+import { LoginDto, RegisterDto, RmqService } from '@app/common';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 
-@ApiTags('auth')
-@Controller('api')
+@Controller()
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly rmqService: RmqService,
+  ) {}
 
-  @ApiCustomResponse({ status: 201, description: 'User created successfully' })
-  @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  @MessagePattern('register_user')
+  async register(
+    @Payload() data: { dto: RegisterDto },
+    @Ctx() context: RmqContext,
+  ) {
+    this.rmqService.ack(context);
+    return await this.authService.register(data.dto);
   }
 
-  @ApiCustomResponse({
-    status: 200,
-    description: 'User logged in successfully',
-  })
-  @Post('login')
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  @MessagePattern('login_user')
+  async login(@Payload() data: { dto: LoginDto }, @Ctx() context: RmqContext) {
+    this.rmqService.ack(context);
+    return await this.authService.login(data.dto);
+  }
+
+  @MessagePattern('validate_jwt')
+  async validateJwt(
+    @Payload() data: { jwt: string },
+    @Ctx() context: RmqContext,
+  ) {
+    this.rmqService.ack(context);
+    return await this.authService.validateJwt(data.jwt);
+  }
+
+  @MessagePattern('decode_jwt')
+  async decodeJwt(
+    @Payload() data: { jwt: string },
+    @Ctx() context: RmqContext,
+  ) {
+    this.rmqService.ack(context);
+    return await this.authService.getUserFromJwt(data.jwt);
   }
 }
