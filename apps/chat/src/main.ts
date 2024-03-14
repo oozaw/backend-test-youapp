@@ -13,5 +13,6 @@ async function bootstrap() {
 
   app.connectMicroservice(rmqService.getOptions(queue));
   await app.startAllMicroservices();
+  await app.listen(configService.get('SOCKET_PORT') || 3001);
 }
 bootstrap();

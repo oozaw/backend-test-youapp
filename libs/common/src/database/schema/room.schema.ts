@@ -12,11 +12,11 @@ export class Room {
   @Prop({ required: false, type: String })
   description: string;
 
-  @Prop({ ref: 'User', type: [SchemaTypes.ObjectId] })
-  members: ObjectId[];
+  @Prop({ ref: 'User', type: [String] })
+  members: string[];
 
-  @Prop({ ref: 'User', type: SchemaTypes.ObjectId })
-  createdBy: ObjectId;
+  @Prop({ ref: 'User', type: String })
+  createdBy: string;
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);

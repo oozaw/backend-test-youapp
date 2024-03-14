@@ -13,6 +13,7 @@ services:
       - rabbitmq
       - auth
       - user
+      - chat
     volumes:
       - .:/usr/src/app # any change to base folder should be reflected
       - /usr/src/app/node_modules
@@ -45,6 +46,20 @@ services:
       - .:/usr/src/app # any change to base folder should be reflected
       - /usr/src/app/node_modules
     command: npm run start:dev auth # overrides CMD from dockerfile
+
+  chat:
+    build:
+      context: ./
+      dockerfile: ./apps/chat/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app # any change to base folder should be reflected
+      - /usr/src/app/node_modules
+    command: npm run start:dev chat # overrides CMD from dockerfile
 
   rabbitmq:
     image: rabbitmq:3-management

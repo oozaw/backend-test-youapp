@@ -8,11 +8,11 @@ export class Message {
   @Prop()
   body: string;
 
-  @Prop({ ref: 'Room', type: SchemaTypes.ObjectId })
-  roomId: ObjectId;
+  @Prop({ ref: 'Room', type: String })
+  roomId: string;
 
-  @Prop({ ref: 'User', type: SchemaTypes.ObjectId })
-  sender: ObjectId;
+  @Prop({ ref: 'User', type: String })
+  sender: string;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
